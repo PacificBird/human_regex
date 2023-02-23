@@ -1,6 +1,6 @@
 //! Functions for matching repetitions
 
-use super::humanregex::{fmt, HumanRegex};
+use super::humanregex::{HumanRegex, SymbolChain};
 
 /// Match at least _n_ of a certain target
 /// ```
@@ -8,11 +8,8 @@ use super::humanregex::{fmt, HumanRegex};
 /// assert!(regex_string.to_regex().is_match("aaaa"));
 /// assert!(!regex_string.to_regex().is_match("aa"));
 /// ```
-pub fn at_least<T>(n: u8, target: T) -> HumanRegex
-where
-    T: Into<String> + fmt::Display,
-{
-    HumanRegex(format!("(?:{}){{{},}}", target, n))
+pub fn at_least(n: u8, target: impl HumanRegex) -> SymbolChain {
+    SymbolChain(format!("(?:{}){{{},}}", target, n))
 }
 
 /// Match at least _n_ and at most _m_ of a certain target
@@ -21,11 +18,8 @@ where
 /// assert!(regex_string.to_regex().is_match("aaaa"));
 /// assert!(!regex_string.to_regex().is_match("aa"));
 /// ```
-pub fn between<T>(n: u8, m: u8, target: T) -> HumanRegex
-where
-    T: Into<String> + fmt::Display,
-{
-    HumanRegex(format!("(?:{}){{{},{}}}", target, n, m))
+pub fn between(n: u8, m: u8, target: impl HumanRegex) -> SymbolChain {
+    SymbolChain(format!("(?:{}){{{},{}}}", target, n, m))
 }
 
 /// Match one or more of a certain target
@@ -34,11 +28,8 @@ where
 /// assert!(regex_string.to_regex().is_match("aaaa"));
 /// assert!(!regex_string.to_regex().is_match("bb"));
 /// ```
-pub fn one_or_more<T>(target: T) -> HumanRegex
-where
-    T: Into<String> + fmt::Display,
-{
-    HumanRegex(format!("(?:{})+", target))
+pub fn one_or_more(target: impl HumanRegex) -> SymbolChain {
+    SymbolChain(format!("(?:{})+", target))
 }
 
 /// Match zero or more of a certain target
@@ -47,11 +38,8 @@ where
 /// assert!(regex_string.to_regex().is_match("a"));
 /// assert!(regex_string.to_regex().is_match("bb"));
 /// ```
-pub fn zero_or_more<T>(target: T) -> HumanRegex
-where
-    T: Into<String> + fmt::Display,
-{
-    HumanRegex(format!("(?:{})*", target))
+pub fn zero_or_more(target: impl HumanRegex) -> SymbolChain {
+    SymbolChain(format!("(?:{})*", target))
 }
 
 /// Match zero or one of a certain target
@@ -60,11 +48,8 @@ where
 /// assert!(regex_string.to_regex().is_match("a"));
 /// assert!(regex_string.to_regex().is_match("bb"));
 /// ```
-pub fn zero_or_one<T>(target: T) -> HumanRegex
-where
-    T: Into<String> + fmt::Display,
-{
-    HumanRegex(format!("(?:{})?", target))
+pub fn zero_or_one(target: impl HumanRegex) -> SymbolChain {
+    SymbolChain(format!("(?:{})?", target))
 }
 
 /// Match exactly _n_ of a certain target
@@ -73,9 +58,6 @@ where
 /// assert!(regex_string.to_regex().is_match("aaaaa"));
 /// assert!(!regex_string.to_regex().is_match("aaa"));
 /// ```
-pub fn exactly<T>(n: u8, target: T) -> HumanRegex
-where
-    T: Into<String> + fmt::Display,
-{
-    HumanRegex(format!("(?:{}){{{}}}", target, n))
+pub fn exactly(n: u8, target: impl HumanRegex) -> SymbolChain {
+    SymbolChain(format!("(?:{}){{{}}}", target, n))
 }

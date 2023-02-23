@@ -1,6 +1,6 @@
 //! Functions for general purpose matches
 
-use super::humanregex::HumanRegex;
+use super::humanregex::{CustomSymbolClass, StandardSymbolClass};
 
 /// A function for matching any character (except for \n)
 /// ```
@@ -9,8 +9,8 @@ use super::humanregex::HumanRegex;
 /// assert!(regex_string.to_regex().is_match("hurl"));
 /// assert!(regex_string.to_regex().is_match("heal"));
 /// ```
-pub fn any() -> HumanRegex {
-    HumanRegex(r".".to_string())
+pub fn any() -> StandardSymbolClass {
+    StandardSymbolClass(r".".to_string())
 }
 
 /// A function for the digit character class (i.e., the digits 0 through 9)
@@ -20,8 +20,8 @@ pub fn any() -> HumanRegex {
 /// assert!(regex_string.to_regex().is_match("010101010100100100100101"));
 /// assert!(!regex_string.to_regex().is_match("a string that is not composed of digits will fail"));
 /// ```
-pub fn digit() -> HumanRegex {
-    HumanRegex(r"\d".to_string())
+pub fn digit() -> StandardSymbolClass {
+    StandardSymbolClass(r"\d".to_string())
 }
 
 /// A function for the non-digit character class (i.e., everything BUT the digits 0-9)
@@ -31,18 +31,18 @@ pub fn digit() -> HumanRegex {
 /// assert!(regex_string.to_regex().is_match("a string without digits will pass"));
 /// assert!(!regex_string.to_regex().is_match("a string with digits like 99 will fail"));
 /// ```
-pub fn non_digit() -> HumanRegex {
-    HumanRegex(r"\D".to_string())
+pub fn non_digit() -> StandardSymbolClass {
+    StandardSymbolClass(r"\D".to_string())
 }
 
 /// A function for the word character class (i.e., all alphanumeric characters plus underscore)
-pub fn word() -> HumanRegex {
-    HumanRegex(r"\w".to_string())
+pub fn word() -> StandardSymbolClass {
+    StandardSymbolClass(r"\w".to_string())
 }
 
 /// A function for the non-word character class (i.e., everything BUT the alphanumeric characters plus underscore)
-pub fn non_word() -> HumanRegex {
-    HumanRegex(r"\W".to_string())
+pub fn non_word() -> StandardSymbolClass {
+    StandardSymbolClass(r"\W".to_string())
 }
 
 /// A constant for the whitespace character class (i.e., space and tab)
@@ -53,8 +53,8 @@ pub fn non_word() -> HumanRegex {
 /// assert!(regex_string.to_regex().is_match("at least"));
 /// assert!(regex_string.to_regex().is_match("at    least"));
 /// ```
-pub fn whitespace() -> HumanRegex {
-    HumanRegex(r"\s".to_string())
+pub fn whitespace() -> StandardSymbolClass {
+    StandardSymbolClass(r"\s".to_string())
 }
 
 /// A function for the whitespace character class (i.e., everything BUT space and tab)
@@ -65,8 +65,8 @@ pub fn whitespace() -> HumanRegex {
 /// assert!(regex_string.to_regex().is_match("a-sluggified-thingamajig"));
 /// assert!(!regex_string.to_regex().is_match("something with spaces won't pass"));
 /// ```
-pub fn non_whitespace() -> HumanRegex {
-    HumanRegex(r"\S".to_string())
+pub fn non_whitespace() -> StandardSymbolClass {
+    StandardSymbolClass(r"\S".to_string())
 }
 
 /// Matches anything within a range of characters
@@ -77,8 +77,8 @@ pub fn non_whitespace() -> HumanRegex {
 /// assert!(regex_string.to_regex().is_match("c"));
 /// assert!(!regex_string.to_regex().is_match("h"));
 ///```
-pub fn within(range: std::ops::RangeInclusive<char>) -> HumanRegex {
-    HumanRegex(format!("[{}-{}]", range.start(), range.end()))
+pub fn within_range(range: std::ops::RangeInclusive<char>) -> CustomSymbolClass {
+    CustomSymbolClass(format!("[{}-{}]", range.start(), range.end()))
 }
 /// Matches anything outside of a range of characters
 ///```
@@ -88,8 +88,18 @@ pub fn within(range: std::ops::RangeInclusive<char>) -> HumanRegex {
 /// assert!(regex_string.to_regex().is_match("h"));
 /// assert!(!regex_string.to_regex().is_match("c"));
 ///```
-pub fn without(range: std::ops::RangeInclusive<char>) -> HumanRegex {
-    HumanRegex(format!("[^{}-{}]", range.start(), range.end()))
+pub fn without_range(range: std::ops::RangeInclusive<char>) -> CustomSymbolClass {
+    CustomSymbolClass(format!("[^{}-{}]", range.start(), range.end()))
+}
+
+/// Matches any character within a given set
+pub fn within_set(set: &[char]) -> CustomSymbolClass {
+    CustomSymbolClass(format!("[{}]", set.into_iter().collect::<String>()))
+}
+
+/// Matches any character outside a given set
+pub fn without_set(set: &[char]) -> CustomSymbolClass {
+    CustomSymbolClass(format!("[^{}]", set.into_iter().collect::<String>()))
 }
 
 /// An enum covering all Unicode character categories
@@ -146,8 +156,8 @@ pub enum UnicodeCategory {
 /// assert!(regex_string.to_regex().is_match("$¥₹"));
 /// assert!(!regex_string.to_regex().is_match("normal words"));
 /// ```
-pub fn unicode_category(category: UnicodeCategory) -> HumanRegex {
-    HumanRegex(match category {
+pub fn unicode_category(category: UnicodeCategory) -> StandardSymbolClass {
+    StandardSymbolClass(match category {
         UnicodeCategory::Letter => r"\p{Letter}".to_string(),
         UnicodeCategory::LowercaseLetter => r"\p{Lowercase_Letter}".to_string(),
         UnicodeCategory::UppercaseLetter => r"\p{Uppercase_Letter}".to_string(),
@@ -198,8 +208,8 @@ pub fn unicode_category(category: UnicodeCategory) -> HumanRegex {
 /// assert!(regex_string.to_regex().is_match("normal words"));
 /// assert!(!regex_string.to_regex().is_match("$¥₹"));
 /// ```
-pub fn non_unicode_category(category: UnicodeCategory) -> HumanRegex {
-    HumanRegex(unicode_category(category).to_string().replace(r"\p", r"\P"))
+pub fn non_unicode_category(category: UnicodeCategory) -> StandardSymbolClass {
+    StandardSymbolClass(unicode_category(category).to_string().replace(r"\p", r"\P"))
 }
 
 /// An enum for covering all Unicode script categories
@@ -263,8 +273,8 @@ pub enum UnicodeScript {
 /// assert!(regex_string.to_regex().is_match("蟹"));
 /// assert!(!regex_string.to_regex().is_match("latin text"));
 /// ```
-pub fn unicode_script(category: UnicodeScript) -> HumanRegex {
-    HumanRegex(match category {
+pub fn unicode_script(category: UnicodeScript) -> StandardSymbolClass {
+    StandardSymbolClass(match category {
         UnicodeScript::Common => r"\p{Common}".to_string(),
         UnicodeScript::Arabic => r"\p{Arabic}".to_string(),
         UnicodeScript::Armenian => r"\p{Armenian}".to_string(),
@@ -322,6 +332,6 @@ pub fn unicode_script(category: UnicodeScript) -> HumanRegex {
 /// assert!(regex_string.to_regex().is_match("latin text"));
 /// assert!(!regex_string.to_regex().is_match("蟹"));
 /// ```
-pub fn non_unicode_script(category: UnicodeScript) -> HumanRegex {
-    HumanRegex(unicode_script(category).to_string().replace(r"\p", r"\P"))
+pub fn non_unicode_script(category: UnicodeScript) -> StandardSymbolClass {
+    StandardSymbolClass(unicode_script(category).to_string().replace(r"\p", r"\P"))
 }

@@ -1,6 +1,6 @@
 //! Functions for capturing matches
 
-use super::humanregex::HumanRegex;
+use super::humanregex::{HumanRegex, SymbolChain};
 
 /// Add a numbered capturing group around an expression
 /// ```
@@ -18,8 +18,8 @@ use super::humanregex::HumanRegex;
 /// assert_eq!("14", caps.get(3).unwrap().as_str());
 /// ```
 
-pub fn capture(target: HumanRegex) -> HumanRegex {
-    HumanRegex(format!("({})", target))
+pub fn capture(target: impl HumanRegex) -> SymbolChain {
+    SymbolChain(format!("({})", target))
 }
 
 /// Add a named capturing group around an expression
@@ -36,6 +36,6 @@ pub fn capture(target: HumanRegex) -> HumanRegex {
 /// assert_eq!("03", &caps["month"]);
 /// assert_eq!("14", &caps["day"]);
 /// ```
-pub fn named_capture(target: HumanRegex, name: &str) -> HumanRegex {
-    HumanRegex(format!("(?P<{}>{})", name, target))
+pub fn named_capture(target: impl HumanRegex, name: &str) -> SymbolChain {
+    SymbolChain(format!("(?P<{}>{})", name, target))
 }
